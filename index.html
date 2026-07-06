@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>每日股票持仓与自选股分析简报 - 2026-07-03</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --ink: #17202a;
+      --muted: #667085;
+      --line: #d9e0e7;
+      --green: #127c56;
+      --red: #bc3434;
+      --amber: #9a6500;
+      --blue: #2468b2;
+      --violet: #6b4bb7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.55;
+    }
+    html { -webkit-text-size-adjust: 100%; }
+    a {
+      color: var(--blue);
+      text-decoration: none;
+      position: relative;
+      z-index: 2;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: rgba(36, 104, 178, .18);
+    }
+    a:hover { text-decoration: underline; }
+    .page { max-width: 1180px; margin: 0 auto; padding: 28px 18px 48px; }
+    header { display: flex; justify-content: space-between; gap: 18px; align-items: flex-end; margin-bottom: 18px; }
+    h1 { font-size: 28px; margin: 0 0 6px; letter-spacing: 0; }
+    .meta { color: var(--muted); font-size: 14px; }
+    .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
+    .summary-item, .stock-card, .table-wrap {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(17, 24, 39, .04);
+    }
+    .summary-item { padding: 14px 16px; }
+    .summary-item span { display: block; color: var(--muted); font-size: 13px; }
+    .summary-item strong { display: block; font-size: 24px; margin-top: 4px; }
+    .update-card {
+      min-width: 245px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: 0 1px 2px rgba(17, 24, 39, .04);
+      text-align: right;
+    }
+    .update-card span { display: block; color: var(--muted); font-size: 12px; }
+    .update-card strong { display: block; margin-top: 2px; font-size: 18px; }
+    .update-card small { display: block; margin-top: 2px; color: var(--muted); font-size: 12px; }
+    .notice {
+      border-left: 4px solid var(--amber);
+      background: #fff8e8;
+      padding: 12px 14px;
+      margin: 16px 0 20px;
+      border-radius: 6px;
+      color: #594100;
+    }
+    .movers {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 16px 0 20px;
+    }
+    .mover-list { margin: 0; padding-left: 18px; }
+    .mover-list li { margin: 9px 0; }
+    .mover-list a { display: inline; line-height: 1.7; overflow-wrap: anywhere; }
+    .table-wrap { overflow-x: auto; margin: 16px 0 22px; }
+    table { width: 100%; border-collapse: collapse; min-width: 860px; }
+    th, td { padding: 11px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-size: 13px; font-weight: 600; background: #f9fafb; }
+    td small { color: var(--muted); }
+    .cards { display: grid; grid-template-columns: 1fr; gap: 14px; }
+    .stock-card { padding: 16px; border-left-width: 5px; }
+    .risk-low { border-left-color: var(--green); }
+    .risk-medium { border-left-color: var(--amber); }
+    .risk-high { border-left-color: var(--red); }
+    .stock-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .stock-name { font-size: 20px; font-weight: 700; }
+    .stock-sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .risk-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 54px;
+      height: 26px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: #eef2f7;
+      color: #344054;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .risk-pill.small { height: 22px; min-width: 38px; font-size: 12px; }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 14px 0; }
+    .metric-grid div { border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: #fbfcfd; }
+    .metric-grid span { display: block; color: var(--muted); font-size: 12px; }
+    .metric-grid strong { display: block; margin-top: 4px; font-size: 18px; }
+    .positive { color: var(--red); }
+    .negative { color: var(--green); }
+    .shape-line { margin: 6px 0; }
+    .muted { color: var(--muted); }
+    .two-col { display: grid; grid-template-columns: 0.95fr 1.4fr; gap: 16px; margin-top: 12px; }
+    h2 { font-size: 18px; margin: 24px 0 10px; }
+    h3 { font-size: 14px; margin: 0 0 8px; color: #344054; }
+    .watch-list, .news-list { margin: 0; padding-left: 18px; }
+    .watch-list li, .news-list li { margin-bottom: 7px; }
+    .news-title { font-weight: 600; }
+    .news-title a { display: inline; line-height: 1.7; overflow-wrap: anywhere; }
+    .news-meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
+    .impact-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 2px 7px;
+      margin-right: 7px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      vertical-align: 1px;
+      white-space: nowrap;
+    }
+    .bull-strong { background: #ffe9e9; color: #a62323; }
+    .bull { background: #fff1f1; color: #bc3434; }
+    .bear-strong { background: #e7f6ef; color: #096341; }
+    .bear { background: #eef9f3; color: #127c56; }
+    .watch { background: #fff4dc; color: #8a5a00; }
+    .neutral { background: #eef2f7; color: #344054; }
+    .stock-sources { margin-top: 14px; }
+    .source-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .source-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 4px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fbfcfd;
+      color: var(--blue);
+      font-size: 12px;
+      line-height: 1.35;
+      cursor: pointer;
+    }
+    .sources { margin-top: 24px; }
+    .source-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .source-grid > div { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+    .source-list { margin: 0; padding-left: 18px; }
+    .source-list li { margin: 7px 0; }
+    .source-list span { color: var(--muted); font-size: 12px; margin-left: 6px; }
+    footer { color: var(--muted); font-size: 12px; margin-top: 28px; }
+    @media (max-width: 760px) {
+      .page { padding: 18px 12px 36px; }
+      header { display: block; }
+      h1 { font-size: 23px; }
+      .update-card { min-width: 0; margin-top: 12px; text-align: left; }
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .two-col { grid-template-columns: 1fr; }
+      .source-grid { grid-template-columns: 1fr; }
+      .stock-head { align-items: flex-start; }
+      .mover-list, .news-list { list-style: none; padding-left: 0; }
+      .mover-list li, .news-list li { padding: 9px 0; border-bottom: 1px solid var(--line); }
+      .mover-list a, .news-title a { display: block; min-height: 34px; padding: 4px 0; line-height: 1.65; }
+      .news-title { display: block; }
+      .impact-pill { margin: 0 7px 5px 0; }
+      .source-chips { gap: 8px; }
+      .source-chip { min-height: 38px; padding: 7px 12px; font-size: 13px; }
+      .source-list a { display: inline-block; min-height: 34px; padding: 4px 0; }
+      .table-wrap { -webkit-overflow-scrolling: touch; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div>
+        <h1>每日股票持仓与自选股分析简报</h1>
+        <div class="meta">辅助复盘，不构成买卖建议</div>
+      </div>
+      <div class="update-card">
+        <span>最近更新时间</span>
+        <strong>2026-07-07 01:52</strong>
+        <small>数据交易日 2026-07-03</small>
+      </div>
+    </header>
+
+    <section class="summary">
+      <div class="summary-item"><span>覆盖持仓</span><strong>10</strong></div>
+      <div class="summary-item"><span>趋势较强</span><strong>4</strong></div>
+      <div class="summary-item"><span>中高风险</span><strong>5</strong></div>
+      <div class="summary-item"><span>放量分歧</span><strong>1</strong></div>
+    </section>
+
+    <div class="notice">重点：趋势较强关注 美的集团、半导体设备ETF国泰、德迈仕、长电科技；放量分歧关注 半导体设备ETF国泰。</div>
+
+    <section class="movers"><h2>重点消息</h2><ul class="mover-list"><li><span class="impact-pill bull-strong">重要利多</span><strong>美的集团(000333)</strong> <a href="https://news.google.com/rss/articles/CBMixwRBVV95cUxNLVVTbmJieXF4V01POEVTa3NwNGE1djI0TFBUclBmSUw4UzJWcUdLbFRFWDRvejRaWDBncnhqaGdrRmNFOVNsc3dSUkR2SXpFSmRtU25MMWYtSEZLZG5vcXBRWTJ4cnRpemxvQWJCaUczXzVtWVpydWlmdmROZWRFbU55c1psVXdEbXozWU9VRGZyZnh2YjBRWDdYNWMtcGFiSUxaTy1LbDN6X3ZUYU9xcFBuRzJLTFgybXZkVFVFUUxQOGZrQTNJTnBRb0tXRTloaEI4NmVpU1FCb0pYVDhCLThFMnQzRjVKdUNZTU9OaEpZc3paSnhycko0Smhuakp4Nl9aeFppWkJGeDR0RWkzZ0JVODNNdEI3UDlYSjhIUl9yQ1U2SkIwVWQtX3JseXd4OUNuc2g0dVJ4Qk5GQmljZGRsX3lfWktOMDhGMDluQThveHFralgwUWNUVnVMcDA3U3BxQkdnSzI3a3JDQWRReFBkR3pWMnoyNG5FOGM3SzFpNmxzUW9mVklfRDNHejUtNjZjYjJnYm9wcl9JQ3RiZEpKa3ZrUW5EdGVrcGtZOG9aMzlwaVVGcTdwUDVqOGFBVldMSmpHTUlzS1A1YnpFUVlrZlVaU1J3MGhRZWpyWm1sMFRSOHUtTzNzY3Z1VVRINlpreDlhakhWVmtUSmJLREhmMVR0TkpWWXE5MEJDMXVWUjVIODVmbmtvbGhESy0yclZBc0kxZTAxcXRPeER5eUdfbXlHR2hoeHFuSTIxbElJdmhUWjAw?oc=5" target="_blank" rel="noopener noreferrer">里昂：美的集团维持跑赢大市评级 目标价升至99港元 - 新浪财经</a><div class="news-meta">07-03 17:22 · 指定来源 · 新浪财经 · 跑赢、机构评级</div></li><li><span class="impact-pill bull-strong">重要利多</span><strong>长电科技(600584)</strong> <a href="https://news.google.com/rss/articles/CBMinwFBVV95cUxOZTJuRmdscE5ONTRZX1pnQ0VPUWIybWhQTkZZQ05VZk9hWHZncG5hWEpjUDNQeHRSaXJhWTdORVdUaHpEbnNLeTk5N3ZjSy05cU0td1ptVVlHbFBhSWk5d2x3TmVhU3pKZWs0NUlCY2hyWGczMjJMakotVzRySk1CU3lQa3g0NEx1emg3NlRUSnF2bmVjeXc2aGtwcFlMZWM?oc=5" target="_blank" rel="noopener noreferrer">半导体封装巨头再度调整报价，幅度最高超过20%|芯片|月光|产能|涨价|晶圆_手机新浪网 - 新浪财经</a><div class="news-meta">07-03 16:49 · 指定来源 · 新浪财经 · 涨价、行业催化</div></li><li><span class="impact-pill watch">重点关注</span><strong>美团-W(03690)</strong> <a href="https://news.google.com/rss/articles/CBMickFVX3lxTE5jalVMTmVOdVpUSFNnWWhZTHRDRGNZeGZDYWRqV29xdXo4QWVkUDdQcDl2Tmk0OEE2QmFnTGc4UUhVaXBVOGNrUllmMmg5RGNCZlA3TGFlRlVlU3EzbEpBYUdHRjRRUFBTOWJLeXFuTHZYUQ?oc=5" target="_blank" rel="noopener noreferrer">恒生互联网指数高位回撤近45%，美团CFO称公司股价被严重低估 - 新浪网</a><div class="news-meta">07-04 17:33 · 指定来源 · 新浪财经 · 低估、严重低估、回撤</div></li></ul></section>
+
+    <h2>总览</h2>
+    <section class="table-wrap">
+      <table>
+        <thead><tr><th>股票</th><th>参考价</th><th>券商盈亏</th><th>趋势</th><th>强度</th><th>风险</th></tr></thead>
+        <tbody><tr><td>美的集团<br><small>000333 · 平安证券</small></td><td>77.960</td><td class="positive">+20.17%</td><td>趋势偏强，价格保持在中长期均线上方</td><td>90</td><td><span class="risk-pill small">低</span></td></tr><tr><td>光迅科技<br><small>002281 · 平安证券</small></td><td>217.330</td><td class="positive">+11.57%</td><td>震荡偏弱，短线跌破MA20</td><td>40</td><td><span class="risk-pill small">低</span></td></tr><tr><td>半导体设备ETF国泰<br><small>159516 · 平安证券</small></td><td>1.730</td><td class="negative">-3.86%</td><td>上升趋势，短中期均线多头排列</td><td>72</td><td><span class="risk-pill small">中</span></td></tr><tr><td>德迈仕<br><small>301007 · 平安证券</small></td><td>37.500</td><td class="negative">-74.76%</td><td>趋势偏强，价格保持在中长期均线上方</td><td>98</td><td><span class="risk-pill small">低</span></td></tr><tr><td>通信ETF国泰<br><small>515880 · 平安证券</small></td><td>0.790</td><td class="positive">+1.07%</td><td>震荡偏弱，短线跌破MA20</td><td>35</td><td><span class="risk-pill small">低</span></td></tr><tr><td>贵州茅台<br><small>600519 · 平安证券</small></td><td>1194.450</td><td class="negative">-13.37%</td><td>下行趋势，仍需等待中长期均线修复</td><td>49</td><td><span class="risk-pill small">中</span></td></tr><tr><td>美团-W<br><small>03690 · 平安证券</small></td><td>71.600</td><td class="negative">-41.68%</td><td>下行趋势，仍需等待中长期均线修复</td><td>44</td><td><span class="risk-pill small">中</span></td></tr><tr><td>泡泡玛特<br><small>09992 · 平安证券</small></td><td>153.300</td><td class="negative">-4.49%</td><td>震荡偏弱，短线跌破MA20</td><td>5</td><td><span class="risk-pill small">中</span></td></tr><tr><td>美利云<br><small>000815 · 东方财富</small></td><td>13.860</td><td class="negative">-15.10%</td><td>下行趋势，仍需等待中长期均线修复</td><td>5</td><td><span class="risk-pill small">中</span></td></tr><tr><td>长电科技<br><small>600584 · 东方财富</small></td><td>90.880</td><td class="positive">+43.59%</td><td>上升趋势，短中期均线多头排列</td><td>82</td><td><span class="risk-pill small">低</span></td></tr></tbody>
+      </table>
+    </section>
+
+    <h2>逐股简报</h2>
+    <section class="cards">
+            <section class="stock-card risk-low">
+              <div class="stock-head">
+                <div>
+                  <div class="stock-name">美的集团</div>
+                  <div class="stock-sub">000333 · 平安证券 · 家电;机器人;新能源;消费电子</div>
+                </div>
+                <span class="risk-pill">低风险</span>
+              </div>
+              <div class="metric-grid">
+                <div><span>券商参考价</span><strong>77.960</strong></div>
+                <div><span>券商盈亏</span><strong class="positive">+20.17%</strong></div>
+                <div><span>强度</span><strong>90</strong></div>
+                <div><span>量比</span><strong>1.31</strong></div>
+              </div>
+              <div class="shape-line">趋势偏强，价格保持在中长期均线上方</div>
+              <div class="shape-line muted">暂无明显突破信号</div>
+              <div class="two-col">
+                <div>
+                  <h3>观察位</h3>
+                  <ul class="watch-list"><li>MA20 76.69 附近能否继续守住</li><li>20日高点 82.18 能否带量突破或站稳</li><li>20日低点 72.28 是否被有效跌破</li><li>MA60 76.32 对中期趋势的支撑/压力</li></ul>
+                  <div class="stock-sources"><h3>核查入口</h3><div class="source-chips"><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cls.cn+%E7%BE%8E%E7%9A%84%E9%9B%86%E5%9B%A2+000333" target="_blank" rel="noopener noreferrer">财联社</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.eastmoney.com+%E7%BE%8E%E7%9A%84%E9%9B%86%E5%9B%A2+000333" target="_blank" rel="noopener noreferrer">东方财富网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Afinance.sina.com.cn+%E7%BE%8E%E7%9A%84%E9%9B%86%E5%9B%A2+000333" target="_blank" rel="noopener noreferrer">新浪财经</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.taoguba.com.cn+%E7%BE%8E%E7%9A%84%E9%9B%86%E5%9B%A2+000333" target="_blank" rel="noopener noreferrer">淘股吧</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Axueqiu.com+%E7%BE%8E%E7%9A%84%E9%9B%86%E5%9B%A2+000333" target="_blank" rel="noopener noreferrer">雪球</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cninfo.com.cn+%E7%BE%8E%E7%9A%84%E9%9B%86%E5%9B%A2+000333" target="_blank" rel="noopener noreferrer">巨潮资讯网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Acs.com.cn+%E7%BE%8E%E7%9A%84%E9%9B%86%E5%9B%A2+000333" target="_blank" rel="noopener noreferrer">中证网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.sse.com.cn+%E7%BE%8E%E7%9A%84%E9%9B%86%E5%9B%A2+000333" target="_blank" rel="noopener noreferrer">上海证券交易所</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.szse.cn+%E7%BE%8E%E7%9A%84%E9%9B%86%E5%9B%A2+000333" target="_blank" rel="noopener noreferrer">深圳证券交易所</a></div></div>
+                </div>
+                <div>
+                  <h3>收盘后消息</h3>
+                  <ul class="news-list"><li><div class="news-title"><span class="impact-pill bull-strong">重要利多</span><a href="https://news.google.com/rss/articles/CBMixwRBVV95cUxNLVVTbmJieXF4V01POEVTa3NwNGE1djI0TFBUclBmSUw4UzJWcUdLbFRFWDRvejRaWDBncnhqaGdrRmNFOVNsc3dSUkR2SXpFSmRtU25MMWYtSEZLZG5vcXBRWTJ4cnRpemxvQWJCaUczXzVtWVpydWlmdmROZWRFbU55c1psVXdEbXozWU9VRGZyZnh2YjBRWDdYNWMtcGFiSUxaTy1LbDN6X3ZUYU9xcFBuRzJLTFgybXZkVFVFUUxQOGZrQTNJTnBRb0tXRTloaEI4NmVpU1FCb0pYVDhCLThFMnQzRjVKdUNZTU9OaEpZc3paSnhycko0Smhuakp4Nl9aeFppWkJGeDR0RWkzZ0JVODNNdEI3UDlYSjhIUl9yQ1U2SkIwVWQtX3JseXd4OUNuc2g0dVJ4Qk5GQmljZGRsX3lfWktOMDhGMDluQThveHFralgwUWNUVnVMcDA3U3BxQkdnSzI3a3JDQWRReFBkR3pWMnoyNG5FOGM3SzFpNmxzUW9mVklfRDNHejUtNjZjYjJnYm9wcl9JQ3RiZEpKa3ZrUW5EdGVrcGtZOG9aMzlwaVVGcTdwUDVqOGFBVldMSmpHTUlzS1A1YnpFUVlrZlVaU1J3MGhRZWpyWm1sMFRSOHUtTzNzY3Z1VVRINlpreDlhakhWVmtUSmJLREhmMVR0TkpWWXE5MEJDMXVWUjVIODVmbmtvbGhESy0yclZBc0kxZTAxcXRPeER5eUdfbXlHR2hoeHFuSTIxbElJdmhUWjAw?oc=5" target="_blank" rel="noopener noreferrer">里昂：美的集团维持跑赢大市评级 目标价升至99港元 - 新浪财经</a></div><div class="news-meta">07-03 17:22 · 指定来源 · 中性 · 评级 · 新浪财经 · 跑赢、机构评级</div></li></ul>
+                </div>
+              </div>
+            </section>
+            
+            <section class="stock-card risk-low">
+              <div class="stock-head">
+                <div>
+                  <div class="stock-name">光迅科技</div>
+                  <div class="stock-sub">002281 · 平安证券 · 光模块;AI算力;通信设备</div>
+                </div>
+                <span class="risk-pill">低风险</span>
+              </div>
+              <div class="metric-grid">
+                <div><span>券商参考价</span><strong>217.330</strong></div>
+                <div><span>券商盈亏</span><strong class="positive">+11.57%</strong></div>
+                <div><span>强度</span><strong>40</strong></div>
+                <div><span>量比</span><strong>0.79</strong></div>
+              </div>
+              <div class="shape-line">震荡偏弱，短线跌破MA20</div>
+              <div class="shape-line muted">暂无明显突破信号</div>
+              <div class="two-col">
+                <div>
+                  <h3>观察位</h3>
+                  <ul class="watch-list"><li>能否重新站上MA20 235.17</li><li>20日高点 279.00 能否带量突破或站稳</li><li>20日低点 199.05 是否被有效跌破</li><li>MA60 189.34 对中期趋势的支撑/压力</li></ul>
+                  <div class="stock-sources"><h3>核查入口</h3><div class="source-chips"><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cls.cn+%E5%85%89%E8%BF%85%E7%A7%91%E6%8A%80+002281" target="_blank" rel="noopener noreferrer">财联社</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.eastmoney.com+%E5%85%89%E8%BF%85%E7%A7%91%E6%8A%80+002281" target="_blank" rel="noopener noreferrer">东方财富网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Afinance.sina.com.cn+%E5%85%89%E8%BF%85%E7%A7%91%E6%8A%80+002281" target="_blank" rel="noopener noreferrer">新浪财经</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.taoguba.com.cn+%E5%85%89%E8%BF%85%E7%A7%91%E6%8A%80+002281" target="_blank" rel="noopener noreferrer">淘股吧</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Axueqiu.com+%E5%85%89%E8%BF%85%E7%A7%91%E6%8A%80+002281" target="_blank" rel="noopener noreferrer">雪球</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cninfo.com.cn+%E5%85%89%E8%BF%85%E7%A7%91%E6%8A%80+002281" target="_blank" rel="noopener noreferrer">巨潮资讯网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Acs.com.cn+%E5%85%89%E8%BF%85%E7%A7%91%E6%8A%80+002281" target="_blank" rel="noopener noreferrer">中证网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.sse.com.cn+%E5%85%89%E8%BF%85%E7%A7%91%E6%8A%80+002281" target="_blank" rel="noopener noreferrer">上海证券交易所</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.szse.cn+%E5%85%89%E8%BF%85%E7%A7%91%E6%8A%80+002281" target="_blank" rel="noopener noreferrer">深圳证券交易所</a></div></div>
+                </div>
+                <div>
+                  <h3>收盘后消息</h3>
+                  <p class="muted">收盘后未在指定来源筛到高相关重要消息。</p>
+                </div>
+              </div>
+            </section>
+            
+            <section class="stock-card risk-medium">
+              <div class="stock-head">
+                <div>
+                  <div class="stock-name">半导体设备ETF国泰</div>
+                  <div class="stock-sub">159516 · 平安证券 · 半导体设备;半导体;国产替代;ETF</div>
+                </div>
+                <span class="risk-pill">中风险</span>
+              </div>
+              <div class="metric-grid">
+                <div><span>券商参考价</span><strong>1.730</strong></div>
+                <div><span>券商盈亏</span><strong class="negative">-3.86%</strong></div>
+                <div><span>强度</span><strong>72</strong></div>
+                <div><span>量比</span><strong>1.66</strong></div>
+              </div>
+              <div class="shape-line">上升趋势，短中期均线多头排列</div>
+              <div class="shape-line muted">跌破MA10；放量下跌</div>
+              <div class="two-col">
+                <div>
+                  <h3>观察位</h3>
+                  <ul class="watch-list"><li>MA20 1.55 附近能否继续守住</li><li>20日高点 2.11 能否带量突破或站稳</li><li>20日低点 1.14 是否被有效跌破</li><li>MA60 1.23 对中期趋势的支撑/压力</li></ul>
+                  <div class="stock-sources"><h3>核查入口</h3><div class="source-chips"><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cls.cn+%E5%8D%8A%E5%AF%BC%E4%BD%93%E8%AE%BE%E5%A4%87ETF%E5%9B%BD%E6%B3%B0+159516" target="_blank" rel="noopener noreferrer">财联社</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.eastmoney.com+%E5%8D%8A%E5%AF%BC%E4%BD%93%E8%AE%BE%E5%A4%87ETF%E5%9B%BD%E6%B3%B0+159516" target="_blank" rel="noopener noreferrer">东方财富网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Afinance.sina.com.cn+%E5%8D%8A%E5%AF%BC%E4%BD%93%E8%AE%BE%E5%A4%87ETF%E5%9B%BD%E6%B3%B0+159516" target="_blank" rel="noopener noreferrer">新浪财经</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.taoguba.com.cn+%E5%8D%8A%E5%AF%BC%E4%BD%93%E8%AE%BE%E5%A4%87ETF%E5%9B%BD%E6%B3%B0+159516" target="_blank" rel="noopener noreferrer">淘股吧</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Axueqiu.com+%E5%8D%8A%E5%AF%BC%E4%BD%93%E8%AE%BE%E5%A4%87ETF%E5%9B%BD%E6%B3%B0+159516" target="_blank" rel="noopener noreferrer">雪球</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cninfo.com.cn+%E5%8D%8A%E5%AF%BC%E4%BD%93%E8%AE%BE%E5%A4%87ETF%E5%9B%BD%E6%B3%B0+159516" target="_blank" rel="noopener noreferrer">巨潮资讯网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Acs.com.cn+%E5%8D%8A%E5%AF%BC%E4%BD%93%E8%AE%BE%E5%A4%87ETF%E5%9B%BD%E6%B3%B0+159516" target="_blank" rel="noopener noreferrer">中证网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.sse.com.cn+%E5%8D%8A%E5%AF%BC%E4%BD%93%E8%AE%BE%E5%A4%87ETF%E5%9B%BD%E6%B3%B0+159516" target="_blank" rel="noopener noreferrer">上海证券交易所</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.szse.cn+%E5%8D%8A%E5%AF%BC%E4%BD%93%E8%AE%BE%E5%A4%87ETF%E5%9B%BD%E6%B3%B0+159516" target="_blank" rel="noopener noreferrer">深圳证券交易所</a></div></div>
+                </div>
+                <div>
+                  <h3>收盘后消息</h3>
+                  <p class="muted">收盘后未在指定来源筛到高相关重要消息。</p>
+                </div>
+              </div>
+            </section>
+            
+            <section class="stock-card risk-low">
+              <div class="stock-head">
+                <div>
+                  <div class="stock-name">德迈仕</div>
+                  <div class="stock-sub">301007 · 平安证券 · 汽车零部件;新能源车</div>
+                </div>
+                <span class="risk-pill">低风险</span>
+              </div>
+              <div class="metric-grid">
+                <div><span>券商参考价</span><strong>37.500</strong></div>
+                <div><span>券商盈亏</span><strong class="negative">-74.76%</strong></div>
+                <div><span>强度</span><strong>98</strong></div>
+                <div><span>量比</span><strong>2.35</strong></div>
+              </div>
+              <div class="shape-line">趋势偏强，价格保持在中长期均线上方</div>
+              <div class="shape-line muted">站上MA60；放量突破20日高点</div>
+              <div class="two-col">
+                <div>
+                  <h3>观察位</h3>
+                  <ul class="watch-list"><li>MA20 33.29 附近能否继续守住</li><li>20日高点 36.40 能否带量突破或站稳</li><li>20日低点 29.02 是否被有效跌破</li><li>MA60 35.97 对中期趋势的支撑/压力</li></ul>
+                  <div class="stock-sources"><h3>核查入口</h3><div class="source-chips"><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cls.cn+%E5%BE%B7%E8%BF%88%E4%BB%95+301007" target="_blank" rel="noopener noreferrer">财联社</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.eastmoney.com+%E5%BE%B7%E8%BF%88%E4%BB%95+301007" target="_blank" rel="noopener noreferrer">东方财富网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Afinance.sina.com.cn+%E5%BE%B7%E8%BF%88%E4%BB%95+301007" target="_blank" rel="noopener noreferrer">新浪财经</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.taoguba.com.cn+%E5%BE%B7%E8%BF%88%E4%BB%95+301007" target="_blank" rel="noopener noreferrer">淘股吧</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Axueqiu.com+%E5%BE%B7%E8%BF%88%E4%BB%95+301007" target="_blank" rel="noopener noreferrer">雪球</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cninfo.com.cn+%E5%BE%B7%E8%BF%88%E4%BB%95+301007" target="_blank" rel="noopener noreferrer">巨潮资讯网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Acs.com.cn+%E5%BE%B7%E8%BF%88%E4%BB%95+301007" target="_blank" rel="noopener noreferrer">中证网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.sse.com.cn+%E5%BE%B7%E8%BF%88%E4%BB%95+301007" target="_blank" rel="noopener noreferrer">上海证券交易所</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.szse.cn+%E5%BE%B7%E8%BF%88%E4%BB%95+301007" target="_blank" rel="noopener noreferrer">深圳证券交易所</a></div></div>
+                </div>
+                <div>
+                  <h3>收盘后消息</h3>
+                  <p class="muted">收盘后未在指定来源筛到高相关重要消息。</p>
+                </div>
+              </div>
+            </section>
+            
+            <section class="stock-card risk-low">
+              <div class="stock-head">
+                <div>
+                  <div class="stock-name">通信ETF国泰</div>
+                  <div class="stock-sub">515880 · 平安证券 · 通信设备;5G;光通信;ETF</div>
+                </div>
+                <span class="risk-pill">低风险</span>
+              </div>
+              <div class="metric-grid">
+                <div><span>券商参考价</span><strong>0.790</strong></div>
+                <div><span>券商盈亏</span><strong class="positive">+1.07%</strong></div>
+                <div><span>强度</span><strong>35</strong></div>
+                <div><span>量比</span><strong>0.95</strong></div>
+              </div>
+              <div class="shape-line">震荡偏弱，短线跌破MA20</div>
+              <div class="shape-line muted">暂无明显突破信号</div>
+              <div class="two-col">
+                <div>
+                  <h3>观察位</h3>
+                  <ul class="watch-list"><li>能否重新站上MA20 1.71</li><li>20日高点 1.89 能否带量突破或站稳</li><li>20日低点 1.56 是否被有效跌破</li><li>MA60 1.52 对中期趋势的支撑/压力</li></ul>
+                  <div class="stock-sources"><h3>核查入口</h3><div class="source-chips"><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cls.cn+%E9%80%9A%E4%BF%A1ETF%E5%9B%BD%E6%B3%B0+515880" target="_blank" rel="noopener noreferrer">财联社</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.eastmoney.com+%E9%80%9A%E4%BF%A1ETF%E5%9B%BD%E6%B3%B0+515880" target="_blank" rel="noopener noreferrer">东方财富网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Afinance.sina.com.cn+%E9%80%9A%E4%BF%A1ETF%E5%9B%BD%E6%B3%B0+515880" target="_blank" rel="noopener noreferrer">新浪财经</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.taoguba.com.cn+%E9%80%9A%E4%BF%A1ETF%E5%9B%BD%E6%B3%B0+515880" target="_blank" rel="noopener noreferrer">淘股吧</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Axueqiu.com+%E9%80%9A%E4%BF%A1ETF%E5%9B%BD%E6%B3%B0+515880" target="_blank" rel="noopener noreferrer">雪球</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cninfo.com.cn+%E9%80%9A%E4%BF%A1ETF%E5%9B%BD%E6%B3%B0+515880" target="_blank" rel="noopener noreferrer">巨潮资讯网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Acs.com.cn+%E9%80%9A%E4%BF%A1ETF%E5%9B%BD%E6%B3%B0+515880" target="_blank" rel="noopener noreferrer">中证网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.sse.com.cn+%E9%80%9A%E4%BF%A1ETF%E5%9B%BD%E6%B3%B0+515880" target="_blank" rel="noopener noreferrer">上海证券交易所</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.szse.cn+%E9%80%9A%E4%BF%A1ETF%E5%9B%BD%E6%B3%B0+515880" target="_blank" rel="noopener noreferrer">深圳证券交易所</a></div></div>
+                </div>
+                <div>
+                  <h3>收盘后消息</h3>
+                  <p class="muted">收盘后未在指定来源筛到高相关重要消息。</p>
+                </div>
+              </div>
+            </section>
+            
+            <section class="stock-card risk-medium">
+              <div class="stock-head">
+                <div>
+                  <div class="stock-name">贵州茅台</div>
+                  <div class="stock-sub">600519 · 平安证券 · 白酒;消费</div>
+                </div>
+                <span class="risk-pill">中风险</span>
+              </div>
+              <div class="metric-grid">
+                <div><span>券商参考价</span><strong>1194.450</strong></div>
+                <div><span>券商盈亏</span><strong class="negative">-13.37%</strong></div>
+                <div><span>强度</span><strong>49</strong></div>
+                <div><span>量比</span><strong>0.78</strong></div>
+              </div>
+              <div class="shape-line">下行趋势，仍需等待中长期均线修复</div>
+              <div class="shape-line muted">暂无明显突破信号</div>
+              <div class="two-col">
+                <div>
+                  <h3>观察位</h3>
+                  <ul class="watch-list"><li>能否重新站上MA20 1212.57</li><li>20日高点 1266.98 能否带量突破或站稳</li><li>20日低点 1151.01 是否被有效跌破</li><li>MA60 1298.84 对中期趋势的支撑/压力</li></ul>
+                  <div class="stock-sources"><h3>核查入口</h3><div class="source-chips"><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cls.cn+%E8%B4%B5%E5%B7%9E%E8%8C%85%E5%8F%B0+600519" target="_blank" rel="noopener noreferrer">财联社</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.eastmoney.com+%E8%B4%B5%E5%B7%9E%E8%8C%85%E5%8F%B0+600519" target="_blank" rel="noopener noreferrer">东方财富网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Afinance.sina.com.cn+%E8%B4%B5%E5%B7%9E%E8%8C%85%E5%8F%B0+600519" target="_blank" rel="noopener noreferrer">新浪财经</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.taoguba.com.cn+%E8%B4%B5%E5%B7%9E%E8%8C%85%E5%8F%B0+600519" target="_blank" rel="noopener noreferrer">淘股吧</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Axueqiu.com+%E8%B4%B5%E5%B7%9E%E8%8C%85%E5%8F%B0+600519" target="_blank" rel="noopener noreferrer">雪球</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cninfo.com.cn+%E8%B4%B5%E5%B7%9E%E8%8C%85%E5%8F%B0+600519" target="_blank" rel="noopener noreferrer">巨潮资讯网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Acs.com.cn+%E8%B4%B5%E5%B7%9E%E8%8C%85%E5%8F%B0+600519" target="_blank" rel="noopener noreferrer">中证网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.sse.com.cn+%E8%B4%B5%E5%B7%9E%E8%8C%85%E5%8F%B0+600519" target="_blank" rel="noopener noreferrer">上海证券交易所</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.szse.cn+%E8%B4%B5%E5%B7%9E%E8%8C%85%E5%8F%B0+600519" target="_blank" rel="noopener noreferrer">深圳证券交易所</a></div></div>
+                </div>
+                <div>
+                  <h3>收盘后消息</h3>
+                  <p class="muted">收盘后未在指定来源筛到高相关重要消息。</p>
+                </div>
+              </div>
+            </section>
+            
+            <section class="stock-card risk-medium">
+              <div class="stock-head">
+                <div>
+                  <div class="stock-name">美团-W</div>
+                  <div class="stock-sub">03690 · 平安证券 · 互联网平台;本地生活;港股</div>
+                </div>
+                <span class="risk-pill">中风险</span>
+              </div>
+              <div class="metric-grid">
+                <div><span>券商参考价</span><strong>71.600</strong></div>
+                <div><span>券商盈亏</span><strong class="negative">-41.68%</strong></div>
+                <div><span>强度</span><strong>44</strong></div>
+                <div><span>量比</span><strong>0.66</strong></div>
+              </div>
+              <div class="shape-line">下行趋势，仍需等待中长期均线修复</div>
+              <div class="shape-line muted">暂无明显突破信号</div>
+              <div class="two-col">
+                <div>
+                  <h3>观察位</h3>
+                  <ul class="watch-list"><li>能否重新站上MA20 73.25</li><li>20日高点 85.75 能否带量突破或站稳</li><li>20日低点 63.65 是否被有效跌破</li><li>MA60 79.91 对中期趋势的支撑/压力</li></ul>
+                  <div class="stock-sources"><h3>核查入口</h3><div class="source-chips"><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cls.cn+%E7%BE%8E%E5%9B%A2-W+03690" target="_blank" rel="noopener noreferrer">财联社</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.eastmoney.com+%E7%BE%8E%E5%9B%A2-W+03690" target="_blank" rel="noopener noreferrer">东方财富网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Afinance.sina.com.cn+%E7%BE%8E%E5%9B%A2-W+03690" target="_blank" rel="noopener noreferrer">新浪财经</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.taoguba.com.cn+%E7%BE%8E%E5%9B%A2-W+03690" target="_blank" rel="noopener noreferrer">淘股吧</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Axueqiu.com+%E7%BE%8E%E5%9B%A2-W+03690" target="_blank" rel="noopener noreferrer">雪球</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cninfo.com.cn+%E7%BE%8E%E5%9B%A2-W+03690" target="_blank" rel="noopener noreferrer">巨潮资讯网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Acs.com.cn+%E7%BE%8E%E5%9B%A2-W+03690" target="_blank" rel="noopener noreferrer">中证网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.sse.com.cn+%E7%BE%8E%E5%9B%A2-W+03690" target="_blank" rel="noopener noreferrer">上海证券交易所</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.szse.cn+%E7%BE%8E%E5%9B%A2-W+03690" target="_blank" rel="noopener noreferrer">深圳证券交易所</a></div></div>
+                </div>
+                <div>
+                  <h3>收盘后消息</h3>
+                  <ul class="news-list"><li><div class="news-title"><span class="impact-pill watch">重点关注</span><a href="https://news.google.com/rss/articles/CBMickFVX3lxTE5jalVMTmVOdVpUSFNnWWhZTHRDRGNZeGZDYWRqV29xdXo4QWVkUDdQcDl2Tmk0OEE2QmFnTGc4UUhVaXBVOGNrUllmMmg5RGNCZlA3TGFlRlVlU3EzbEpBYUdHRjRRUFBTOWJLeXFuTHZYUQ?oc=5" target="_blank" rel="noopener noreferrer">恒生互联网指数高位回撤近45%，美团CFO称公司股价被严重低估 - 新浪网</a></div><div class="news-meta">07-04 17:33 · 指定来源 · 中性 · 管理层变动 · 新浪财经 · 低估、严重低估、回撤</div></li></ul>
+                </div>
+              </div>
+            </section>
+            
+            <section class="stock-card risk-medium">
+              <div class="stock-head">
+                <div>
+                  <div class="stock-name">泡泡玛特</div>
+                  <div class="stock-sub">09992 · 平安证券 · 潮玩;消费;港股</div>
+                </div>
+                <span class="risk-pill">中风险</span>
+              </div>
+              <div class="metric-grid">
+                <div><span>券商参考价</span><strong>153.300</strong></div>
+                <div><span>券商盈亏</span><strong class="negative">-4.49%</strong></div>
+                <div><span>强度</span><strong>5</strong></div>
+                <div><span>量比</span><strong>0.59</strong></div>
+              </div>
+              <div class="shape-line">震荡偏弱，短线跌破MA20</div>
+              <div class="shape-line muted">暂无明显突破信号</div>
+              <div class="two-col">
+                <div>
+                  <h3>观察位</h3>
+                  <ul class="watch-list"><li>能否重新站上MA20 166.19</li><li>20日高点 187.10 能否带量突破或站稳</li><li>20日低点 150.40 是否被有效跌破</li><li>MA60 160.11 对中期趋势的支撑/压力</li></ul>
+                  <div class="stock-sources"><h3>核查入口</h3><div class="source-chips"><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cls.cn+%E6%B3%A1%E6%B3%A1%E7%8E%9B%E7%89%B9+09992" target="_blank" rel="noopener noreferrer">财联社</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.eastmoney.com+%E6%B3%A1%E6%B3%A1%E7%8E%9B%E7%89%B9+09992" target="_blank" rel="noopener noreferrer">东方财富网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Afinance.sina.com.cn+%E6%B3%A1%E6%B3%A1%E7%8E%9B%E7%89%B9+09992" target="_blank" rel="noopener noreferrer">新浪财经</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.taoguba.com.cn+%E6%B3%A1%E6%B3%A1%E7%8E%9B%E7%89%B9+09992" target="_blank" rel="noopener noreferrer">淘股吧</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Axueqiu.com+%E6%B3%A1%E6%B3%A1%E7%8E%9B%E7%89%B9+09992" target="_blank" rel="noopener noreferrer">雪球</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cninfo.com.cn+%E6%B3%A1%E6%B3%A1%E7%8E%9B%E7%89%B9+09992" target="_blank" rel="noopener noreferrer">巨潮资讯网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Acs.com.cn+%E6%B3%A1%E6%B3%A1%E7%8E%9B%E7%89%B9+09992" target="_blank" rel="noopener noreferrer">中证网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.sse.com.cn+%E6%B3%A1%E6%B3%A1%E7%8E%9B%E7%89%B9+09992" target="_blank" rel="noopener noreferrer">上海证券交易所</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.szse.cn+%E6%B3%A1%E6%B3%A1%E7%8E%9B%E7%89%B9+09992" target="_blank" rel="noopener noreferrer">深圳证券交易所</a></div></div>
+                </div>
+                <div>
+                  <h3>收盘后消息</h3>
+                  <p class="muted">收盘后未在指定来源筛到高相关重要消息。</p>
+                </div>
+              </div>
+            </section>
+            
+            <section class="stock-card risk-medium">
+              <div class="stock-head">
+                <div>
+                  <div class="stock-name">美利云</div>
+                  <div class="stock-sub">000815 · 东方财富 · 云计算;数据中心;算力;国资云</div>
+                </div>
+                <span class="risk-pill">中风险</span>
+              </div>
+              <div class="metric-grid">
+                <div><span>券商参考价</span><strong>13.860</strong></div>
+                <div><span>券商盈亏</span><strong class="negative">-15.10%</strong></div>
+                <div><span>强度</span><strong>5</strong></div>
+                <div><span>量比</span><strong>0.63</strong></div>
+              </div>
+              <div class="shape-line">下行趋势，仍需等待中长期均线修复</div>
+              <div class="shape-line muted">暂无明显突破信号</div>
+              <div class="two-col">
+                <div>
+                  <h3>观察位</h3>
+                  <ul class="watch-list"><li>能否重新站上MA20 15.69</li><li>20日高点 18.27 能否带量突破或站稳</li><li>20日低点 13.84 是否被有效跌破</li><li>MA60 18.40 对中期趋势的支撑/压力</li></ul>
+                  <div class="stock-sources"><h3>核查入口</h3><div class="source-chips"><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cls.cn+%E7%BE%8E%E5%88%A9%E4%BA%91+000815" target="_blank" rel="noopener noreferrer">财联社</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.eastmoney.com+%E7%BE%8E%E5%88%A9%E4%BA%91+000815" target="_blank" rel="noopener noreferrer">东方财富网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Afinance.sina.com.cn+%E7%BE%8E%E5%88%A9%E4%BA%91+000815" target="_blank" rel="noopener noreferrer">新浪财经</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.taoguba.com.cn+%E7%BE%8E%E5%88%A9%E4%BA%91+000815" target="_blank" rel="noopener noreferrer">淘股吧</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Axueqiu.com+%E7%BE%8E%E5%88%A9%E4%BA%91+000815" target="_blank" rel="noopener noreferrer">雪球</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cninfo.com.cn+%E7%BE%8E%E5%88%A9%E4%BA%91+000815" target="_blank" rel="noopener noreferrer">巨潮资讯网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Acs.com.cn+%E7%BE%8E%E5%88%A9%E4%BA%91+000815" target="_blank" rel="noopener noreferrer">中证网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.sse.com.cn+%E7%BE%8E%E5%88%A9%E4%BA%91+000815" target="_blank" rel="noopener noreferrer">上海证券交易所</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.szse.cn+%E7%BE%8E%E5%88%A9%E4%BA%91+000815" target="_blank" rel="noopener noreferrer">深圳证券交易所</a></div></div>
+                </div>
+                <div>
+                  <h3>收盘后消息</h3>
+                  <p class="muted">收盘后未在指定来源筛到高相关重要消息。</p>
+                </div>
+              </div>
+            </section>
+            
+            <section class="stock-card risk-low">
+              <div class="stock-head">
+                <div>
+                  <div class="stock-name">长电科技</div>
+                  <div class="stock-sub">600584 · 东方财富 · 半导体;封测;先进封装</div>
+                </div>
+                <span class="risk-pill">低风险</span>
+              </div>
+              <div class="metric-grid">
+                <div><span>券商参考价</span><strong>90.880</strong></div>
+                <div><span>券商盈亏</span><strong class="positive">+43.59%</strong></div>
+                <div><span>强度</span><strong>82</strong></div>
+                <div><span>量比</span><strong>0.85</strong></div>
+              </div>
+              <div class="shape-line">上升趋势，短中期均线多头排列</div>
+              <div class="shape-line muted">暂无明显突破信号</div>
+              <div class="two-col">
+                <div>
+                  <h3>观察位</h3>
+                  <ul class="watch-list"><li>MA20 86.43 附近能否继续守住</li><li>20日高点 111.11 能否带量突破或站稳</li><li>20日低点 67.85 是否被有效跌破</li><li>MA60 66.66 对中期趋势的支撑/压力</li></ul>
+                  <div class="stock-sources"><h3>核查入口</h3><div class="source-chips"><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cls.cn+%E9%95%BF%E7%94%B5%E7%A7%91%E6%8A%80+600584" target="_blank" rel="noopener noreferrer">财联社</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.eastmoney.com+%E9%95%BF%E7%94%B5%E7%A7%91%E6%8A%80+600584" target="_blank" rel="noopener noreferrer">东方财富网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Afinance.sina.com.cn+%E9%95%BF%E7%94%B5%E7%A7%91%E6%8A%80+600584" target="_blank" rel="noopener noreferrer">新浪财经</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.taoguba.com.cn+%E9%95%BF%E7%94%B5%E7%A7%91%E6%8A%80+600584" target="_blank" rel="noopener noreferrer">淘股吧</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Axueqiu.com+%E9%95%BF%E7%94%B5%E7%A7%91%E6%8A%80+600584" target="_blank" rel="noopener noreferrer">雪球</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.cninfo.com.cn+%E9%95%BF%E7%94%B5%E7%A7%91%E6%8A%80+600584" target="_blank" rel="noopener noreferrer">巨潮资讯网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Acs.com.cn+%E9%95%BF%E7%94%B5%E7%A7%91%E6%8A%80+600584" target="_blank" rel="noopener noreferrer">中证网</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.sse.com.cn+%E9%95%BF%E7%94%B5%E7%A7%91%E6%8A%80+600584" target="_blank" rel="noopener noreferrer">上海证券交易所</a><a class="source-chip" href="https://www.bing.com/search?q=site%3Awww.szse.cn+%E9%95%BF%E7%94%B5%E7%A7%91%E6%8A%80+600584" target="_blank" rel="noopener noreferrer">深圳证券交易所</a></div></div>
+                </div>
+                <div>
+                  <h3>收盘后消息</h3>
+                  <ul class="news-list"><li><div class="news-title"><span class="impact-pill bull-strong">重要利多</span><a href="https://news.google.com/rss/articles/CBMinwFBVV95cUxOZTJuRmdscE5ONTRZX1pnQ0VPUWIybWhQTkZZQ05VZk9hWHZncG5hWEpjUDNQeHRSaXJhWTdORVdUaHpEbnNLeTk5N3ZjSy05cU0td1ptVVlHbFBhSWk5d2x3TmVhU3pKZWs0NUlCY2hyWGczMjJMakotVzRySk1CU3lQa3g0NEx1emg3NlRUSnF2bmVjeXc2aGtwcFlMZWM?oc=5" target="_blank" rel="noopener noreferrer">半导体封装巨头再度调整报价，幅度最高超过20%|芯片|月光|产能|涨价|晶圆_手机新浪网 - 新浪财经</a></div><div class="news-meta">07-03 16:49 · 指定来源 · 中性 · 行业变化 · 新浪财经 · 涨价、行业催化</div></li></ul>
+                </div>
+              </div>
+            </section>
+            </section>
+
+    <section class="sources"><h2>常用信息入口</h2><div class="source-grid"><div><h3>资讯交易平台</h3><ul class="source-list"><li><a href="https://www.cls.cn" target="_blank" rel="noopener noreferrer">财联社</a></li><li><a href="https://www.eastmoney.com" target="_blank" rel="noopener noreferrer">东方财富网</a></li><li><a href="https://finance.sina.com.cn" target="_blank" rel="noopener noreferrer">新浪财经</a></li><li><a href="https://www.taoguba.com.cn" target="_blank" rel="noopener noreferrer">淘股吧</a></li><li><a href="https://xueqiu.com" target="_blank" rel="noopener noreferrer">雪球</a></li></ul></div><div><h3>官方权威渠道</h3><ul class="source-list"><li><a href="https://www.cninfo.com.cn" target="_blank" rel="noopener noreferrer">巨潮资讯网</a><span>证监会指定公告披露</span></li><li><a href="https://cs.com.cn" target="_blank" rel="noopener noreferrer">中证网</a><span>中国证券报官网</span></li><li><a href="https://www.sse.com.cn" target="_blank" rel="noopener noreferrer">上海证券交易所</a></li><li><a href="https://www.szse.cn" target="_blank" rel="noopener noreferrer">深圳证券交易所</a></li></ul></div></div></section>
+
+    <footer>数据来自第三方行情与新闻源，存在延迟、缺漏或转述偏差；请结合交易软件和公告原文核实。</footer>
+  </main>
+</body>
+</html>
